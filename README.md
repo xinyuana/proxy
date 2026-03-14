@@ -1,14 +1,26 @@
-# MediaCrawler Squid Proxy (Docker)
+# proxy (public)
 
-Public repo for deploying a simple authenticated Squid forward proxy.
+Public repo for deploying an authenticated Squid forward proxy using Docker Compose.
 
-## Quick Start
+## Deploy (Ubuntu 24.04)
 
-1. Set `PROXY_PASSWORD` in `docker-compose.yml` (blank by default).
-2. Start the proxy:
+```bash
+sudo bash scripts/setup-ubuntu24.sh
+```
+
+Then:
+
+```bash
+git clone https://github.com/xinyuana/proxy.git
+cd proxy
+cp .env.example .env
+```
+
+Edit `.env` and set `PROXY_PASSWORD` (kept blank in git by design), then start:
 
 ```bash
 docker compose up -d --build
+docker compose ps
 ```
 
 ## Test
@@ -17,8 +29,20 @@ docker compose up -d --build
 curl -v -x http://<server-ip>:3128 --proxy-user "mediacrawler:<your-password>" https://www.baidu.com -I
 ```
 
-## Files
+If your password contains `!`, prefer single quotes:
 
-- `docker-compose.yml`: run proxy
-- `squid.conf`: squid config
-- `entrypoint.sh`: generates `/etc/squid/passwd` at container start
+```bash
+curl -v -x http://<server-ip>:3128 --proxy-user 'mediacrawler:MediaCrawler2025!' https://www.baidu.com -I
+```
+
+## Ops
+
+```bash
+docker logs --tail 200 mediacrawler_squid
+docker compose restart
+```
+
+## Notes
+
+- Open port `3128/tcp` in both UFW and your cloud security group.
+- To restrict access by IP range, edit `squid.conf` ACL rules.
