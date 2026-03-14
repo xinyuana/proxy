@@ -11,6 +11,13 @@ if [ -z "$PROXY_PASSWORD" ]; then
 fi
 
 htpasswd -bc /etc/squid/passwd "$PROXY_USER" "$PROXY_PASSWORD" >/dev/null
-chmod 600 /etc/squid/passwd
+# Squid helpers run as the squid/proxy user; keep file non-world-readable but accessible.
+if id proxy >/dev/null 2>&1; then
+  chown proxy:proxy /etc/squid/passwd
+else
+  # Fallback for images using 'squid' user.
+  chown squid:squid /etc/squid/passwd 2>/dev/null || true
+fi
+chmod 640 /etc/squid/passwd
 
 exec squid -N -f /etc/squid/squid.conf
