@@ -1,0 +1,20 @@
+name: mediacrawler-proxy
+
+services:
+  squid:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: mediacrawler/squid-proxy:latest
+    container_name: mediacrawler_squid
+    restart: unless-stopped
+    ports:
+      - "3128:3128"
+    environment:
+      TZ: "Asia/Shanghai"
+      PROXY_PORT: "3128"
+      PROXY_USER: "mediacrawler"
+      # Leave blank by default. Set this value before running.
+      PROXY_PASSWORD: ""
+    volumes:
+      - ./squid.conf:/etc/squid/squid.conf:ro
